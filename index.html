@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>PredictZone</title>
+  <style>
+    body{font-family:system-ui;padding:16px;max-width:720px;margin:auto}
+    .card{border:1px solid #eee;padding:12px;border-radius:10px;margin:12px 0}
+    button{padding:10px 14px;margin:6px;border-radius:8px;border:0;background:#0b74de;color:#fff}
+    button[disabled]{opacity:0.6;background:#999}
+    .bar{height:10px;background:#eee;border-radius:6px;overflow:hidden;margin-top:8px}
+    .fill{height:100%;background:#4caf50}
+  </style>
+</head>
+<body>
+  <h1>PredictZone</h1>
+  <p style="color:#666">Admin adds questions (via GitHub). Users vote below.</p>
+  <div id="list">Loading…</div>
+
+<script>
+async function load(){
+  const res = await fetch('/data/questions.json');
+  const qs = await res.json();
+  const container = document.getElementById('list');
+  container.innerHTML = '';
+
+  qs.forEach(q=>{
+    const card = document.createElement('div'); card.className='card';
+    const title = document.createElement('h3'); title.textContent = q.question;
+    card.appendChild(title);
+
+    const counts = JSON.parse(localStorage.getItem('counts_'+q.id) || '{}');
+    const voted = localStorage.getItem('voted_'+q.id);
+    const total = Object.values(counts).reduce((a,b)=>a+(b||0),0);
+
+    q.options.forEach(opt=>{
+      const count = counts[opt] || 0;
+      const pct = total? Math.round(count/total*100):0;
+      const btn = document.createElement('button');
+      btn.textContent = `${opt} — ${pct}% (${count})`;
+      btn.disabled = voted !== null;
+      btn.onclick = ()=>{
+        counts[opt] = (counts[opt]||0)+1;
+        localStorage.setItem('counts_'+q.id,JSON.stringify(counts));
+        localStorage.setItem('voted_'+q.id,opt);
+        load();
+      };
+      card.appendChild(btn);
+    });
+
+    container.appendChild(card);
+  });
+}
+load();
+</script>
+</body>
+</html>
