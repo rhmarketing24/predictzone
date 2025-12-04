@@ -1,17 +1,24 @@
 {
-  "version": "1",
-  "name": "PredictZone",
-  "subtitle": "Only admin posts — users vote",
-  "description": "PredictZone: আপনি প্রশ্ন দেবেন, ব্যবহারকারীরা ভোট দেবে।",
-  "screenshotUrls": [],
-  "iconUrl": "https://predictzone.vercel.app/icon.png",
-  "splashImageUrl": "https://predictzone.vercel.app/splash.png",
-  "splashBackgroundColor": "#ffffff",
-  "homeUrl": "https://predictzone.vercel.app",
-  "webhookUrl": "",
-  "primaryCategory": "social",
-  "tags": ["prediction", "poll", "vote"],
-  "heroImageUrl": "https://predictzone.vercel.app/hero.png",
+  "accountAssociation": {
+    "header": "",
+    "payload": "",
+    "signature": ""
+  },
+  "miniapp": {
+    "version": "1",
+    "name": "PredictZone",
+    "subtitle": "Only admin posts — users vote",
+    "description": "PredictZone: আপনি প্রশ্ন দেবেন, ব্যবহারকারীরা ভোট দেবে।",
+    "screenshotUrls": [],
+    "iconUrl": "https://predictzone.vercel.app/icon.png",
+    "splashImageUrl": "https://predictzone.vercel.app/splash.png",
+    "splashBackgroundColor": "#ffffff",
+    "homeUrl": "https://predictzone.vercel.app",
+    "webhookUrl": "",
+    "primaryCategory": "social",
+    "tags": ["prediction", "poll", "vote"],
+    "heroImageUrl": "https://predictzone.vercel.app/hero.png"
+  },
   "baseBuilder": {
     "ownerAddress": "0x7E57b5d42a37cC332Cc54712db977F43Baf2ff28"
   }
