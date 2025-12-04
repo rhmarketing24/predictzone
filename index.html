@@ -1,58 +1,116 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>PredictZone</title>
-  <style>
-    body{font-family:system-ui;padding:16px;max-width:720px;margin:auto}
-    .card{border:1px solid #eee;padding:12px;border-radius:10px;margin:12px 0}
-    button{padding:10px 14px;margin:6px;border-radius:8px;border:0;background:#0b74de;color:#fff}
-    button[disabled]{opacity:0.6;background:#999}
-    .bar{height:10px;background:#eee;border-radius:6px;overflow:hidden;margin-top:8px}
-    .fill{height:100%;background:#4caf50}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PredictZone</title>
+
+    <style>
+        body { font-family: system-ui; padding: 20px; max-width: 700px; margin: auto; }
+        .card { border: 1px solid #ccc; padding: 15px; border-radius: 12px; margin-top: 15px; }
+        button { padding: 10px 14px; margin: 5px; border-radius: 8px; border: none; cursor: pointer; }
+        button:disabled { opacity: 0.6; background: #999; }
+        .btn { background: #007bff; color: white; }
+        .result { font-weight: bold; margin-top: 10px; color: green; }
+    </style>
 </head>
+
 <body>
-  <h1>PredictZone</h1>
-  <p style="color:#666">Admin adds questions (via GitHub). Users vote below.</p>
-  <div id="list">Loading…</div>
+<h2>PredictZone</h2>
+<p style="color:#666">Live Poll System (Firebase)</p>
 
-<script>
-async function load(){
-  const res = await fetch('/data/questions.json');
-  const qs = await res.json();
-  const container = document.getElementById('list');
-  container.innerHTML = '';
+<div id="pollArea">Loading...</div>
 
-  qs.forEach(q=>{
-    const card = document.createElement('div'); card.className='card';
-    const title = document.createElement('h3'); title.textContent = q.question;
-    card.appendChild(title);
+<script type="module">
 
-    const counts = JSON.parse(localStorage.getItem('counts_'+q.id) || '{}');
-    const voted = localStorage.getItem('voted_'+q.id);
-    const total = Object.values(counts).reduce((a,b)=>a+(b||0),0);
+// ---------------------- Firebase Setup ----------------------
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, doc, getDoc, updateDoc, onSnapshot } 
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    q.options.forEach(opt=>{
-      const count = counts[opt] || 0;
-      const pct = total? Math.round(count/total*100):0;
-      const btn = document.createElement('button');
-      btn.textContent = `${opt} — ${pct}% (${count})`;
-      btn.disabled = voted !== null;
-      btn.onclick = ()=>{
-        counts[opt] = (counts[opt]||0)+1;
-        localStorage.setItem('counts_'+q.id,JSON.stringify(counts));
-        localStorage.setItem('voted_'+q.id,opt);
-        load();
-      };
-      card.appendChild(btn);
+const firebaseConfig = {
+  apiKey: "AIzaSyBnnAWxLaphMhAG3F2Jkkd8s9CRrxXR828",
+  authDomain: "predictzone-158ba.firebaseapp.com",
+  projectId: "predictzone-158ba",
+  storageBucket: "predictzone-158ba.firebasestorage.app",
+  messagingSenderId: "132388290492",
+  appId: "1:132388290492:web:d1108b70fe8188205df5b9",
+  measurementId: "G-FJFLXNMH40"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// ---------------------- Load Poll ----------------------
+const POLL_ID = "Gz4BGIYYbXzHuCTGJvf";  // তোমার Firestore থেকে নেওয়া ডকুমেন্ট আইডি
+const pollRef = doc(db, "polls", POLL_ID);
+
+const pollArea = document.getElementById("pollArea");
+
+// listen realtime
+onSnapshot(pollRef, (snap) => {
+    if (!snap.exists()) {
+        pollArea.innerHTML = "No poll found.";
+        return;
+    }
+
+    const data = snap.data();
+    showPoll(data);
+});
+
+// ---------------------- Show Poll UI ----------------------
+function showPoll(data) {
+
+    const alreadyVoted = localStorage.getItem("voted_" + POLL_ID);
+
+    let html = `
+    <div class="card">
+        <h3>${data.question}</h3>
+        <p>Choose wisely 👇</p>
+    `;
+
+    data.Option.forEach(opt => {
+        html += `
+            <button class="btn" onclick="vote('${opt}')" ${alreadyVoted ? "disabled" : ""}>
+                ${opt}
+            </button>
+        `;
     });
 
-    container.appendChild(card);
-  });
+    html += `
+        <div class="result">
+            UP: ${data.votes.Up} votes <br>
+            DOWN: ${data.votes.Down} votes
+        </div>
+    </div>
+    `;
+
+    pollArea.innerHTML = html;
 }
-load();
+
+// ---------------------- Voting Logic ----------------------
+window.vote = async function(option) {
+
+    const alreadyVoted = localStorage.getItem("voted_" + POLL_ID);
+    if (alreadyVoted) {
+        alert("You already voted!");
+        return;
+    }
+
+    const snap = await getDoc(pollRef);
+    const data = snap.data();
+
+    // Increase vote count
+    data.votes[option] += 1;
+
+    await updateDoc(pollRef, { votes: data.votes });
+
+    // Save localStorage so user can’t vote twice
+    localStorage.setItem("voted_" + POLL_ID, "yes");
+
+    alert("Vote submitted!");
+};
+
 </script>
 </body>
 </html>
