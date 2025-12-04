@@ -1,0 +1,15 @@
+{
+  "version": "1",
+  "name": "PredictZone",
+  "subtitle": "Only admin posts — users vote",
+  "description": "PredictZone: আপনি প্রশ্ন দেবেন, ব্যবহারকারীরা ভোট দেবে।",
+  "screenshotUrls": [],
+  "iconUrl": "https://your-app.vercel.app/icon.png",
+  "splashImageUrl": "https://your-app.vercel.app/splash.png",
+  "splashBackgroundColor": "#ffffff",
+  "homeUrl": "https://your-app.vercel.app",
+  "webhookUrl": "",
+  "primaryCategory": "social",
+  "tags": ["prediction","poll","vote"],
+  "heroImageUrl": "https://your-app.vercel.app/hero.png"
+}
